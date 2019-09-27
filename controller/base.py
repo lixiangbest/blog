@@ -157,7 +157,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def has_message(self):
         if not self.session:
             self.session = Session(self)
-        
+
         session_id = self.session.get_session_id()
         if session_id in self.session.msg:
             return bool(self.session.msg[session_id])
