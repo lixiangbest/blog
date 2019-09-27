@@ -1,0 +1,52 @@
+{% extends 'admin_base.html' %}
+
+{% block title2 %}
+帮助
+{% end %}
+
+{% block admin_content %}
+<div class="entry-box">
+    <h4><strong>blog_xtg帮助页面</strong></h4>
+    <hr/>
+    <h5>一、blog_xtg简介</h5>
+
+    <p><a href="https://github.com/xtg20121013/blog_xtg">blog_xtg</a> 是作者<code>xiaotaogou</code>基于<a
+            href="https://github.com/xpleaf/Blog_mini">Blog_mini</a>重构的个人分布式博客系统。</p>
+
+    <p>由于不太擅长前端，所以基本照搬<a href="https://github.com/xpleaf/Blog_mini">Blog_mini</a>的页面，但是整个后端逻辑都是重写的，以下是与<a
+            href="https://github.com/xpleaf/Blog_mini">Blog_mini</a>的主要区别：</p>
+
+    <ol>
+        <li>改用tornado框架，是个基于异步IO的web server。</li>
+        <li>分布式架构，可以多进程多主机启动server实例，再通过nginx等代理服务器做负载均衡，实现横向扩展提高并发性能。</li>
+        <li>
+            提高多数主要页面访问性能。对频繁查询的组件（例如博客标题、菜单、公告、访问统计）进行缓存，优化sql查询（多条sql语句合并一次执行、仅查需要的字段，例如搜索博文列表不查博文的具体内容）以提高首页博文等主要页面访问性能。
+        </li>
+        <li>访问统计改为日pv和日uv。</li>
+        <li>博文编辑器改为markdown编辑器。</li>
+        <li>引入alembic管理数据库版本。</li>
+        <li>可使用docker快速部署。</li>
+    </ol>
+
+    <h5>二、开源声明</h5>
+
+    <ol>
+        <li><a href="https://github.com/xtg20121013/blog_xtg">blog_xtg</a>是完全开源的，你可以在GitHub获取他的全部代码，当然也可以对他进行二次开发。</li>
+        <li>作者不对任何基于<a href="https://github.com/xtg20121013/blog_xtg">blog_xtg</a>开发的或搭建的项目、站点负责。</li>
+        <li>如果没有获得作者授权，请勿将其商用。</li>
+    </ol>
+
+    <h5>三、技术支持</h5>
+
+    <p>如果你有任何疑问，可以给作者留言:</p>
+
+    <p>附： </p>
+
+    <ul>
+        <li><p>作者博客：<a href="http://blog.xiaotaogou.site">http://blog.xiaotaogou.site</a></p></li>
+        <li><p>作者简书：<a href="http://www.jianshu.com/u/dfb6bf87c35e">http://www.jianshu.com/u/dfb6bf87c35e</a></p></li>
+        <li><p>blog_xtg的github地址：<a href="https://github.com/xtg20121013/blog_xtg">https://github.com/xtg20121013/blog_xtg</a>
+        </p></li>
+    </ul>
+</div>
+{% end %}

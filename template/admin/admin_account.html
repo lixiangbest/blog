@@ -1,0 +1,86 @@
+{% extends 'admin_base.html' %}
+
+{% block admin_content %}
+<div class="entry-box account">
+    <h4><strong><i>{{ current_user.name }}</i>，欢迎来到blog_xtg管理平台！</strong></h4>
+    <hr/>
+    <div class="user-info">
+        <img class="img-rounded profile-thumbnail" src="{{ handler.get_gravatar_url(current_user.email, size=120) }}">
+        <div class="profile-header">
+            <h5>昵称：</h5>
+            <h4 class="username">{{ current_user.name }}</h4>
+            <h5>电子邮件：</h5>
+            <h4 class="email">{{ current_user.email }}</h4>
+            <a class="btn btn-sm btn-danger" onclick="changePassword()">
+                修改密码
+            </a>
+            <a class="btn btn-sm btn-info" onclick="editUserInfo()">
+                修改信息
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 信息确认: For change password form-->
+<div class="modal fade" id="changePasswordFormModal">
+    <div class="modal-dialog">
+        <div class="modal-content message_align">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="modal-title" id="NavModalTitle"></h4>
+            </div>
+            <form id="changePasswordForm" method="post" onsubmit="return checkChangePasswordForm()"
+                  action="{{ reverse_url('admin.account.update', 'change-password') }}">
+                <div class="modal-body">
+                        <div class="form-group">
+                            {% module xsrf_form_html() %}
+                            <label for="old_password">原密码</label>
+                            <input class="form-control" id="old_password" required name="old_password" type="password" >
+                            <label for="password">新密码</label>
+                            <input class="form-control" id="password" required name="password" type="password" >
+                        </div>
+                        <div id="group_password2" class="form-group">
+                            <label for="password2">新密码确认</label>
+                            <input class="form-control" id="password2" required name="password2" type="password" >
+                            <span id="password2_err" class="help-block" style="display: none">两次密码不一致</span>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button id="changePasswordCfmClick" type="submit" class="btn btn-success">确定</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- 信息确认: For edit user info form-->
+<div class="modal fade" id="editUserInfoFormModal">
+    <div class="modal-dialog">
+        <div class="modal-content message_align">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <h4 class="modal-title" id="NavModalTitle"></h4>
+            </div>
+            <form id="editUserInfoForm" method="post" action="{{ reverse_url('admin.account.update', 'edit-user-info') }}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        {% module xsrf_form_html() %}
+                        <label for="username">昵称</label>
+                        <input class="form-control" id="username" required name="username" type="text" value="{{current_user.name}}" readonly="readonly" />
+                        <label for="email">email</label>
+                        <input class="form-control" id="email" required name="email" type="text" value="{{current_user.email}}" />
+                        <label for="password">密码确认</label>
+                        <input class="form-control" id="password" required name="password" type="text" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button id="editUserInfoCfmClick" type="submit" class="btn btn-success">确定</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% end %}

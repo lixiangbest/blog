@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ article.title }}
+{% end %}
+{% block private_stylesheet %}
+    <link rel="stylesheet" href="{{ static_url('css/highlight/default.min.css') }}" />
+{% end %}
+{% block content %}
+<div id='article-detials' class="entry-box">
+    <div class="article-entry-header">
+        <h3 class="article-entry-title">
+            <a href="{{ reverse_url('article', article.id) }}">{{ article.title }}</a>
+        </h3>
+    </div>
+    <div class="article-entry-info">
+        <div class="base-info">
+            <span class="label label-default">{{ article.create_time.strftime('%Y{y}%m{m}%d{d}').format(y='年', m='月', d='日') }}</span>&nbsp;
+            <span class="label label-warning">
+            <a href="{{ reverse_url('articleSource', article.source.id) }}" target="_blank" style="color: white">
+                {{ article.source.name }}
+            </a>
+        </span>&nbsp;
+            <span class="label label-info">
+            <a href="{{ reverse_url('articleType', article.articleType.id) }}" target="_blank" style="color: white">
+                {{ article.articleType.name }}
+            </a>
+        </span>&nbsp;
+        </div>
+        <div class="main-info">
+            <span class="label label-primary">浏览 {{ article.num_of_view }}</span>
+            <span class="label label-success">评论 {{ comments_pager.totalCount }}</span>
+        </div>
+    </div>
+
+    <hr>
+    <div>
+        <img class="article-loading" src="{{ static_url('images/loading154.gif') }}">
+        <p class="article-content" style="display: none">
+            {{ article.content }}
+        </p>
+    </div>
+    <br><br>
+    <div class="article-add-info">
+        <p>
+            <span class="glyphicon glyphicon-time">
+                博文最后更新时间：
+            </span>
+            {{ article.create_time.strftime('%Y{y}%m{m}%d{d} %H:%M:%S').format(y='年', m='月', d='日') }}
+        </p>
+    </div>
+    {% if current_user %}
+    <div class="article-edit">
+        <a href="{{ reverse_url('admin.article', article.id) }}">
+            <button type="button" class="btn btn-default btn-sm">
+                <span class="glyphicon glyphicon-pencil"></span>
+                编辑
+            </button>
+        </a>
+    </div>
+    {% end %}
+    <hr>
+
+    <h4 id="comments" name="comments"><span class="glyphicon glyphicon-comment">评论</span></h4>
+    {% include "_article_comments.html" %}
+    {% module Template("_macros.html", pager=comments_pager, url=reverse_url('article', article.id), params="#comments") %}
+
+    <h4  id="submit-comment"><span class="glyphicon glyphicon-comment">发表评论</span></h4>
+    <div class="row">
+    <div class="col-md-8" id="submit-comment-container">
+        <form class="submit-comment-form" id="submit-comment-form" method="post" action="{{ reverse_url('articleComment', article.id)}}">
+            {% module xsrf_form_html() %}
+            <label for="name">昵称</label>
+            <input class="form-control" id="name" name="author_name" required="" type="text"
+                   value="{{ current_user['name'] if current_user else '' }}">
+            <label for="email">邮箱</label>
+            <input class="form-control" id="email" name="author_email" required="" type="text"
+                   value="{{ current_user['email'] if current_user else '' }}">
+            <label for="content">内容</label>
+            <textarea class="form-control" id="content" name="content" required=""></textarea>
+            <button type="submit" class="btn btn-default">
+                提交
+            </button>
+        </form>
+    </div>
+</div>
+
+</div>
+{% end %}
+
+{% block script %}
+    <script src="{{ static_url('js/markdown/markdown.js') }}"></script>
+    <script src="{{ static_url('js/highlight/highlight.min.js') }}"></script>
+    <script src="{{ static_url('js/articleDetail.js') }}"></script>
+{% end %}

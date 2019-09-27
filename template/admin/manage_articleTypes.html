@@ -1,0 +1,188 @@
+{% extends 'admin_base.html' %}
+
+{% block title2 %}
+    博文分类
+{% end %}
+
+{% block admin_content %}
+<div class="entry-box manage-articleTypes">
+    <h4><strong>博文分类</strong></h4>
+    <hr/>
+    <p><span class="glyphicon glyphicon-book"></span>分类总数：<span class="badge">{{ pager.totalCount }}</span></p>
+    <div class="articleTypes-box">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="{{ reverse_url('admin.articleTypes') }}">博文分类</a></li>
+            <li class=""><a href="{{ reverse_url('admin.articleTypeNavs') }}">分类导航</a></li>
+        </ul>
+        <div class="articleTypes" id="articleTypes">
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr class="table-header">
+                    <th>分类名称</th>
+                    <th>分类介绍</th>
+                    <th>属性</th>
+                    <th>所属导航</th>
+                    <th>博文数量</th>
+                    <th>修改</th>
+                    <th>删除</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for articleType in pager.result %}
+                    <tr>
+                        <td>
+                            <a href="{{ reverse_url('articleType', articleType.id) }}" target="_blank">
+                                {{ articleType.name }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if articleType.introduction %}
+                                {{ articleType.introduction }}
+                            {% else %}
+                                该分类暂时没有介绍
+                            {% end %}
+                        </td>
+                        <td>
+                            {% if articleType.is_hide %}
+                                隐藏
+                            {% else %}
+                                公开
+                            {% end %}
+                        </td>
+                        <td>
+                            {% if articleType.menu %}
+                                {{ articleType.menu.name }}
+                            {% else %}
+                                该分类暂时没有所属导航
+                            {% end %}
+                        </td>
+                        <td>{{ articleType.articles_count }}</td>
+                        {% if not articleType.is_protected %}
+                        <td>
+                            <a class="btn" title="修改分类信息"
+                               onclick="get_articleType_info('{{ reverse_url('admin.articleType.update', articleType.id, 'update') }}?pageNo={{pager.pageNo}}', {{articleType.id}},
+                               '{{articleType.name}}', {{'true' if articleType.is_hide else 'false'}}, '{{articleType.introduction}}', {{articleType.menu_id if articleType.menu_id else 'null'}})">
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </a>
+                        </td>
+                        <td>
+                            <a class="btn btn-sm btn-default delete-articleType" title="删除分类"
+                               onclick="delArticleTypeCfm('{{ reverse_url('admin.articleType.update', articleType.id, 'delete') }}?pageNo={{pager.pageNo}}')">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </a>
+                        </td>
+                        {% else %}
+                        <td/>
+                        <td/>
+                        {% end %}
+                    </tr>
+                {% end %}
+                </tbody>
+            </table>
+        </div>
+        <div class="add-articleType">
+            <a class="btn btn-sm btn-primary add-articleType-btn">
+                <span class="glyphicon glyphicon-plus-sign"></span>
+                添加分类
+            </a>
+        </div>
+    </div>
+    {% module Template("_macros.html", pager=pager, url=reverse_url('admin.articleTypes'), params=None) %}
+</div>
+
+<!--  add articleType form-->
+<div class="modal fade" id="addArticleTypeFormModel">
+    <div class="modal-dialog">
+        <div class="modal-content message_align">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="modal-title">添加博文分类</h4>
+            </div>
+            <form id="addArticleTypeForm" method="post" action="{{ reverse_url('admin.articleType.action', 'add') }}">
+                <div class="modal-body">
+                        <div class="form-group">
+                            {% module xsrf_form_html() %}
+                            <label for="name">分类名称</label>
+                            <input class="form-control" id="name" name="name" required="" type="text" value="">
+                            <label for="setting_hide">属性</label>
+                            <select class="form-control" id="setting_hide" name="setting_hide" required=""><option value='false'>公开</option><option value='true'>隐藏</option></select>
+                            <label for="introduction">分类介绍</label>（可选）
+                            <textarea class="form-control" id="introduction" name="introduction"></textarea>
+                            <label for="menus">所属导航</label>
+                            <select class="form-control" id="menus" name="menu_id" required="">
+                                {% for menu in menus %}
+                                <option value="{{ menu.id }}">{{ menu.name }}</option>
+                                {% end %}
+                                <option value="-1" selected>不选择导航（该分类将单独成一导航）</option>
+                            </select>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button id="addArticlyTypeCfmClick" type="submit" class="btn btn-success">确定</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!--  For edit articleType form-->
+<div class="modal fade" id="editArticleTypeFormModel">
+    <div class="modal-dialog">
+        <div class="modal-content message_align">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="modal-title" id="ModalTitle"></h4>
+            </div>
+            <form id="editArticleTypeForm" method="post" action="">
+                <div class="modal-body">
+                        <div class="form-group">
+                            {% module xsrf_form_html() %}
+                            <label for="name">分类名称</label>
+                            <input class="form-control" id="editName" name="name" required="" type="text" value="">
+                            <label for="setting_hide">属性</label>
+                            <select class="form-control" id="editSetting_hide" name="setting_hide" required=""><option value="false">公开</option><option value="true">隐藏</option></select>
+                            <label for="introduction">分类介绍</label>（可选）
+                            <textarea class="form-control" id="editIntroduction" name="introduction"></textarea>
+                            <label for="menus">所属导航</label>
+                            <select class="form-control" id="editMenus" name="menu_id" required="">
+                                {% for menu in menus %}
+                                <option value="{{ menu.id }}">{{ menu.name }}</option>
+                                {% end %}
+                                <option value="-1" selected>不选择导航（该分类将单独成一导航）</option>
+                            </select>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button id="editArticlyTypeCfmClick" type="submit" class="btn btn-success">确定</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!--  For delete an articletype confirm -->
+<div class="modal fade" id="delArticleTypeCfmModel">
+    <div class="modal-dialog">
+        <div class="modal-content message_align">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="modal-title">确认删除分类？</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    将该分类删除后不可恢复，同时会将该分类的所有博文设置为<strong>未分类</strong>，您确认要删除吗？
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id="delArticleTypeCfmClick" class="btn btn-success" data-dismiss="modal">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% end %}

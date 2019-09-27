@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if pager and pager.result %}
+{% for article in pager.result %}
+<div id="article-entry" class="entry-box">
+    <div class="article-entry-header">
+        <h3 class="article-entry-title">
+            <a href="{{ reverse_url('article', article.id) }}">{{ article.title }}</a>
+        </h3>
+    </div>
+    <div class="article-entry-info">
+        <div class="base-info">
+            <span class="label label-default"> {{ article.create_time.strftime('%Y{y}%m{m}%d{d}').format(y='年', m='月', d='日') }} </span>&nbsp;
+            <span class="label label-warning">
+            <a href="{{ reverse_url('articleSource', article.source.id) }}" style="color: white">
+                {{ article.source.name }}
+            </a>
+        </span>&nbsp;
+            <span class="label label-info">
+            <a href="{{ reverse_url('articleType', article.articleType.id) }}" style="color: white">
+                {{ article.articleType.name }}
+            </a>
+        </span>&nbsp;
+        </div>
+        <div class="main-info">
+            <span class="label label-primary">浏览 {{ article.num_of_view }}</span>
+            <span class="label label-success">评论 {{ article.comments_count }}</span>
+        </div>
+    </div>
+    <div class="article-entry-sum">
+        <p>{{ article.summary }}{% if len(article.summary) >= 100 %}...... {%end%}</p>
+    </div>
+</div>
+{% end %}
+{% end %}
+{% module Template("_macros.html", pager=pager, url=base_url, params=article_search_params.to_url_params()) %}
+
+{% end %}

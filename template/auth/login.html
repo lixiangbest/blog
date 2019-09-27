@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登陆blog_mhq管理后台</title>
+    <link href="{{ static_url('css/bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ static_url('css/common.css') }}" rel="stylesheet">
+</head>
+<body background="{{ static_url('images/background.jpg') }}">
+<div class="container login-page">
+    <div class="row">
+        <div class="col-md-4 col-lg-offset-4">
+            {% if handler.has_message() %}
+                {% for message in handler.read_messages() %}
+                    {% set message = eval(message) %}
+                    <div class="alert alert-{{ message['category'] }} alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        {{ message['message'] }}
+                    </div>
+                {% end %}
+            {% end %}
+            <h3 class="text-center">欢迎登陆博客管理后台</h3>
+            <form class="form-horizontal" role="form" method="post" action="{{ reverse_url('login') }}">
+                {% module xsrf_form_html() %}
+                <input type="hidden" name="next" value="{{ next_url }}">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" >用户名</label>
+                    <div class="col-sm-9">
+                        <div class="input-group">
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+                            <input class="form-control" id="username" name="username" placeholder="请输入您的用户名" required="" type="text" value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" >密码</label>
+                    <div class="col-sm-9">
+                        <div class="input-group">
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+                            <input class="form-control" id="password" name="password" placeholder="请输入您的密码" required="" type="password" value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <button type="submit" class="btn btn-default">登录</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ static_url('js/jquery-2.2.1.min.js') }}"></script>
+<script src="{{ static_url('js/bootstrap.min.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{% from model.site_info import SiteCollection %}
+{% extends 'admin_base.html' %}
+
+{% block title2 %}
+    基本信息
+{% end %}
+
+{% block admin_content %}
+<div class="entry-box custom-blog">
+    <h4><strong>基本信息</strong></h4>
+    <hr/>
+    <div class="blog-info-box">
+        <h5 class="info-header"><strong>博客标题：</strong></h5>
+        <i>{{ SiteCollection.title }}</i>
+        <h5 class="info-header"><strong>个性签名：</strong></h5>
+        <i>{{ SiteCollection.signature }}</i>
+        <h5 class="info-header"><strong>导航样式：</strong></h5>
+        <i>
+            {% if SiteCollection.navbar in navbar_styles %}
+                {{ navbar_styles[SiteCollection.navbar] }}
+            {% else %}
+                {{ navbar_styles['default'] }}
+            {% end %}
+        </i>
+        <div class="add-articleType-nav">
+            <a class="btn btn-sm btn-primary blog-info-btn" id="editBlogInfo" onclick="get_blog_info()">
+                <span class="glyphicon glyphicon-edit"></span>
+                修改
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 信息删除确认: For edit blog info form-->
+<div class="modal fade" id="editBlogInfoFormModal">
+    <div class="modal-dialog">
+        <div class="modal-content message_align">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="modal-title">修改基本信息</h4>
+            </div>
+            <form id="editBlogInfoForm" method="post" action="">
+                <div class="modal-body">
+                        <div class="form-group">
+                            {% module xsrf_form_html() %}
+                            <label for="title">博客标题</label>
+                            <input class="form-control" id="title" required name="title"  type="text" value="{{ SiteCollection.title }}" />
+                            <label for="signature">个性签名</label>
+                            <textarea class="form-control" id="signature" required name="signature">{{ SiteCollection.signature }}</textarea>
+                            <label for="navbar">导航样式</label>
+                            <select class="form-control" id="navbar" name="navbar" required>
+                                {% for navbar in navbar_styles %}
+                                    {% if navbar == SiteCollection.navbar %}
+                                        <option value="{{navbar}}" selected="selected" >{{navbar_styles[navbar]}}</option>
+                                    {% else %}
+                                        <option value="{{navbar}}" >{{navbar_styles[navbar]}}</option>
+                                    {% end %}
+                                {% end %}
+                            </select>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button id="editblogInfoCfmClick" type="submit" class="btn btn-success">确定</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% end %}

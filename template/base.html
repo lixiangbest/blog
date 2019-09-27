@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+{% from model.site_info import SiteCollection %}
+{% from model.constants import Constants %}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+        {{ SiteCollection.title }}
+        {% end %}
+    </title>
+    {% block stylesheet %}
+        <link href="{{ static_url('css/bootstrap.css') }}" rel="stylesheet">
+        <link href="{{ static_url('css/common.css') }}" rel="stylesheet">
+        {% block private_stylesheet %}
+        {% end %}
+    {% end %}
+</head>
+
+<body>
+<header>
+    <div class='header-top'>
+        <div class="container">
+            <h2  class="blog-title"><a href="{{ reverse_url('index') }}">{{ SiteCollection.title }}</a></h2>
+            <p class="lead signature">
+                {{ SiteCollection.signature }}
+            </p>
+        </div>
+    </div>
+    <nav class="navbar navbar-{{ SiteCollection.navbar }}" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">切换导航</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class=""><a href="/"><span class="glyphicon glyphicon-home"> 首页</span></a></li>
+                    {% if SiteCollection.menus is not None %}
+                        {% for menu in SiteCollection.menus %}
+                            {% if menu.all_types %}
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown">
+                                        {{ menu.name }}
+                                        <b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        {% for article_type in menu.all_types %}
+                                            {% if not article_type.is_hide %}
+                                                <li>
+                                                    <a href="{{ reverse_url('articleType', article_type.id) }}">
+                                                        {{ article_type.name }}
+                                                    </a>
+                                                </li>
+                                                <li class="divider"></li>
+                                            {% end %}
+                                        {% end %}
+                                    </ul>
+                                </li>
+                            {% end %}
+                        {% end %}
+                    {% end %}
+                    {% if SiteCollection.article_types_not_under_menu %}
+                        {% for article_type in SiteCollection.article_types_not_under_menu %}
+                            {% if not article_type.is_hide %}
+                                <li>
+                                    <a href="{{ reverse_url('articleType', article_type.id) }}">
+                                            {{ article_type.name }}
+                                    </a>
+                                </li>
+                            {% end %}
+                        {% end %}
+                    {% end %}
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if current_user %}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown">
+                                <img style="height: 18px" src="{{ current_user['avatar'] }}">
+                                {{ current_user['name'] }} <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ reverse_url('admin.account') }}">管理首页</a></li>
+                                <li><a href="{{ reverse_url('admin.article.action', 'submit') }}">发表博文</a></li>
+                                <li><a href="{{ reverse_url('logout') }}">退出登陆</a></li>
+                            </ul>
+                        </li>
+                    {% end %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+{% block main %}
+    <div class="content">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 article">
+                    {% if handler.has_message() %}
+                        {% for message in handler.read_messages() %}
+                            {% set message = eval(message) %}
+                            <div class="alert alert-{{ message['category'] }} alert-dismissable">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                {{ message['message'] }}
+                            </div>
+                        {% end %}
+                    {% end %}
+                    {% block content %}
+                    {% end %}
+                </div>
+                <div class="col-md-4 blog_nav">
+                    {% block blog_nav_plugin %}
+                        {% if SiteCollection.plugins %}
+                            {% for plugin in SiteCollection.plugins %}
+                                {% if not plugin.disabled %}
+                                    {% if plugin.content != Constants.SYSTEM_PLUGIN %}
+                                        <div id="{{ plugin.title }}" class="entry-box">
+                                            <h5><strong>{{ plugin.title }}</strong></h5>
+                                            {% raw plugin.content %}
+                                        </div>
+                                    {% else %}
+                                        <div class="entry-box">
+                                            <h5><strong>博客统计</strong></h5>
+                                            <p>
+                                                总的PV：<span class="badge">{{ SiteCollection.pv if SiteCollection.pv else 0 }}</span>
+                                                总的UV：<span class="badge">{{ SiteCollection.uv if SiteCollection.uv else 0 }}</span>
+                                            </p>
+                                            <p>
+                                                今日PV：<span class="badge">{{ SiteCollection.todaypv if SiteCollection.todaypv else 0 }}</span>
+                                                今日UV：<span class="badge">{{ SiteCollection.todayuv if SiteCollection.todaypv else 0 }}</span>
+                                            </p>
+                                            <p>
+                                                博文总数：<span class="badge">{{ SiteCollection.article_count if SiteCollection.article_count else 0 }}</span>
+                                                评论总数：<span class="badge">{{ SiteCollection.comment_count if SiteCollection.comment_count else 0 }}</span>
+                                            </p>
+                                            <p>
+                                                {% if SiteCollection.article_sources %}
+                                                    {% for source in SiteCollection.article_sources %}
+                                                        <a href="{{ reverse_url('articleSource', source.id) }}">{{ source.name }}</a>：
+                                                        <span class="badge">{{ source.articles_count }}</span>
+                                                    {% end %}
+                                                {% end %}
+                                            </p>
+                                        </div>
+                                    {% end %}
+                                {% end %}
+                            {% end %}
+                        {% end %}
+                    {% end %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% end %}
+<div class="footer">
+    <p class="footer-content">
+        {% from datetime import date %}
+        @{{ date.today().year }}
+        <a target="_blank" href="https://github.com/xtg20121013/blog_xtg">blog_xtg</a>
+        -开源的分布式博客系统
+        {% if not current_user %}
+            -<a href="{{ handler.login_url() }}">
+            <span class="glyphicon glyphicon-wrench">后台管理</span>
+        </a>
+        {% end %}
+    </p>
+</div>
+<div class="btn-group-vertical floatButton">
+    <button id="goTop" class="btn btn-default" title="去顶部" type="button">
+        <span class="glyphicon glyphicon-arrow-up"></span>
+    </button>
+    <button id="refresh" class="btn btn-default" title="刷新" type="button">
+        <span class="glyphicon glyphicon-refresh"></span>
+    </button>
+    <button id="goBottom" class="btn btn-default" title="去底部" type="button">
+        <span class="glyphicon glyphicon-arrow-down"></span>
+    </button>
+</div>
+{% block base_script %}
+    <script src="{{ static_url('js/jquery-2.2.1.min.js') }}"></script>
+    <script src="{{ static_url('js/bootstrap.min.js') }}"></script>
+    <script src="//cdn.bootcss.com/bootstrap-hover-dropdown/2.2.1/bootstrap-hover-dropdown.min.js"></script>
+    <script src="{{ static_url('js/floatButton.js') }}"></script>
+{% end %}
+{% block script %}
+{% end %}
+</body>
+</html>
