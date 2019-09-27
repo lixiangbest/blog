@@ -2,10 +2,10 @@
 基于python3.6 Tornado的博客系统,体验地址:[blog_taylor](http://wifi.tiyukan.cn/)
 
 前台效果:
-![image](https://github.com/lixiangbest/blog/raw/master/static/front.png)
+![image](https://raw.githubusercontent.com/lixiangbest/blog/master/static/images/front.png)
 
 后台效果:
-![image](https://github.com/lixiangbest/blog/raw/master/static/back.png)
+![image](https://raw.githubusercontent.com/lixiangbest/blog/master/static/images/back.png)
 
 ### 一、为什么写blog_taylor
 之前了解的开源blog有很多，比如WordPress、LifeType等等，这些都是PHP架构的,我也从事PHP开发,再用PHP写一个blog意义不大.最近几年，python比较火,就想学习一下python相关的知识,
